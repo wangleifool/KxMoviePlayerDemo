@@ -1,44 +1,25 @@
-FFmpegPlayer-iOS - A movie player for iOS based on FFmpeg.
+说明
 ==========================================================
 
-### Build Instructions
+这个工程是 [官方KxMovie](https://github.com/kolyvan/kxmovie)的个人定制版，因为源工程多年不更新了，本工程旨在修复编译错误和一些自己的定制内容。
 
-First you need to download, configure and build [FFmpeg](http://ffmpeg.org/index.html). For this, open console and type in:
-	
-	cd kxmovie
-	git submodule update --init	
-	rake
+### 查看Demo效果
 
-### Usage
+1. 编译按自己需求定制的ffmpeg，可食用https://github.com/kewlbear/FFmpeg-iOS-build-script.git进行自动化编译。
+2. 将编译后的FFmpeg-iOS拖入工程，即可编译运行。如果遇到错误，请检查Header Search Path是否与自己的真实情况对应。
 
-1. Drop files from kxmovie/output folder in your project.
-2. Add frameworks: MediaPlayer, CoreAudio, AudioToolbox, Accelerate, QuartzCore, OpenGLES and libz.dylib .
-3. Add libs: libkxmovie.a, libavcodec.a, libavformat.a, libavutil.a, libswscale.a, libswresample.a
+### 集成到自己的项目
 
-For play movies:
+1. 同样，你需要自己编译后的ffmpeg静态库。
+2. 将kxmovie部分源码导入自己的工程。
+3. API使用如下:
 
 	ViewController *vc;
 	vc = [KxMovieViewController movieViewControllerWithContentPath:path parameters:nil];
 	[self presentViewController:vc animated:YES completion:nil];
 
-See KxMovieExample demo project as example of using.
-
-Also, you can include kxmovie as subproject. Look at [kxtorrent](https://github.com/kolyvan/kxtorrent) as example.
-
-Remember, you need to copy some movies via iTunes for playing them. And you can use kxmovie for streaming from remote sources via rtsp, rtmp, http, etc.
-
-### Requirements
-
-At least iOS 7.0 and iPhone 4 (because of iOS 7 requirements).
-
-### Screenshots
+### 截屏
 
 <img src="https://raw.github.com/atelierdumobile/FFmpegPlayer-iOS/master/readme-media/screenshot-movie.png" alt="Movie View" width="50%">
 <img src="https://raw.github.com/atelierdumobile/FFmpegPlayer-iOS/master/readme-media/screenshot-info.png" alt="Info View" width="50%">
 <img src="https://raw.github.com/atelierdumobile/FFmpegPlayer-iOS/master/readme-media/screenshot-movie-landscape.png" alt="Movie View Landscape" width="50%">
-
-### Feedback
-
-Tweet me — [@kolyvan_ru](http://twitter.com/kolyvan_ru).
-
-Tweet me — [@MonsieurDart](http://twitter.com/MonsieurDart).
