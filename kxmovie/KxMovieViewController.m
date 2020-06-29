@@ -151,7 +151,8 @@ static NSMutableDictionary * gHistory;
 
 + (id) movieViewControllerWithContentPath: (NSString *) path
                                parameters: (NSDictionary *) parameters
-{    
+{
+    // 音频管理是一个单例
     id<KxAudioManager> audioManager = [KxAudioManager audioManager];
     [audioManager activateAudioSession];    
     return [[KxMovieViewController alloc] initWithContentPath: path parameters: parameters];
@@ -172,8 +173,10 @@ static NSMutableDictionary * gHistory;
         
         __weak KxMovieViewController *weakSelf = self;
         
+        // movie 解码器
         KxMovieDecoder *decoder = [[KxMovieDecoder alloc] init];
         
+        // 解码中断回调
         decoder.interruptCallback = ^BOOL(){
             
             __strong KxMovieViewController *strongSelf = weakSelf;
@@ -344,6 +347,7 @@ _messageLabel.hidden = YES;
 
     [self updateBottomBar];
 
+    // 必须在MovieDecoder先初始化完成，再布局UI
     if (_decoder) {
         
         [self setupPresentView];
@@ -511,7 +515,7 @@ _messageLabel.hidden = YES;
 }
 
 #pragma mark - public
-
+// MARK: 播放
 -(void) play
 {
     if (self.playing)
@@ -618,7 +622,7 @@ _messageLabel.hidden = YES;
 }
 
 #pragma mark - private
-
+// MARK: KxMovieDecoder 初始化完成后，在这里设置后续相关参数
 - (void) setMovieDecoder: (KxMovieDecoder *) decoder
                withError: (NSError *) error
 {
@@ -635,6 +639,7 @@ _messageLabel.hidden = YES;
             _subtitles = [NSMutableArray array];
         }
     
+        // 设置bufferduration，根据是否是网络资源来决定，如果是本地文件，肯定要快得多
         if (_decoder.isNetwork) {
             
             _minBufferedDuration = NETWORK_MIN_BUFFERED_DURATION;
@@ -690,7 +695,7 @@ _messageLabel.hidden = YES;
         }
         
     } else {
-        
+         // Decoder初始化出现错误❌
          if (self.isViewLoaded && self.view.window) {
         
              [_activityIndicatorView stopAnimating];
@@ -700,6 +705,7 @@ _messageLabel.hidden = YES;
     }
 }
 
+// 恢复播放
 - (void) restorePlay
 {
     NSNumber *n = [gHistory valueForKey:_decoder.path];
@@ -709,14 +715,18 @@ _messageLabel.hidden = YES;
         [self play];
 }
 
+// MARK: 初始化渲染视图和字幕视图
 - (void) setupPresentView
 {
     CGRect bounds = self.view.bounds;
     
+    // 如果是可解码视频，初始化KxMovieGLView，这是基于OpenELES为核心的渲染层
     if (_decoder.validVideo) {
         _glView = [[KxMovieGLView alloc] initWithFrame:bounds decoder:_decoder];
     } 
-    
+
+    // 如果OpenGL视图创建失败才用UIImageView来渲染，但很明显这样的效率很低下。
+    // TODO: 一般摄像APP中捕获的数据，应该不是让UIImageView进行渲染的，那又是用的什么呢？
     if (!_glView) {
         
         LoggerVideo(0, @"fallback to use RGB video frame and UIKit");
@@ -732,17 +742,18 @@ _messageLabel.hidden = YES;
     [self.view insertSubview:frameView atIndex:0];
         
     if (_decoder.validVideo) {
-    
+        // 给渲染视图添加点击手势
         [self setupUserInteraction];
     
     } else {
        
         _imageView.image = [UIImage imageNamed:@"kxmovie.bundle/music_icon.png"];
-        _imageView.contentMode = UIViewContentModeCenter;
+        _imageView.contentMode = UIViewContentModeScaleAspectFit;
     }
     
     self.view.backgroundColor = [UIColor clearColor];
     
+    // 是否代表这是直播视频
     if (_decoder.duration == MAXFLOAT) {
         
         _leftLabel.text = @"\u221E"; // infinity
@@ -766,6 +777,7 @@ _messageLabel.hidden = YES;
                   forControlEvents:UIControlEventValueChanged];
     }
     
+    // 如果视频包含字幕信息，初始化字幕显示label
     if (_decoder.subtitleStreamsCount) {
         
         CGSize size = self.view.bounds.size;
@@ -812,6 +824,7 @@ _messageLabel.hidden = YES;
     return _glView ? _glView : _imageView;
 }
 
+// MARK: 音频回调后处理, 将提取的音频数据包装后，放到outdata里进行传出去
 - (void) audioCallbackFillData: (float *) outData
                      numFrames: (UInt32) numFrames
                    numChannels: (UInt32) numChannels
@@ -842,7 +855,7 @@ _messageLabel.hidden = YES;
                         LoggerAudio(2, @"Audio frame position: %f", frame.position);
 #endif
                         if (_decoder.validVideo) {
-                        
+                            // MARK: 这里面需要处理音频和视频的同步关系了
                             const CGFloat delta = _moviePosition - frame.position;
                             
                             if (delta < -0.1) {
@@ -882,14 +895,33 @@ _messageLabel.hidden = YES;
             }
             
             if (_currentAudioFrame) {
-                
+                // TODO: 这里尝试对音频数据进行处理一下，测试看看能否达到我们想要的效果。另外，我们的音频处理有点耗时，怎么解决？
                 const void *bytes = (Byte *)_currentAudioFrame.bytes + _currentAudioFramePos;
                 const NSUInteger bytesLeft = (_currentAudioFrame.length - _currentAudioFramePos);
+                // Warning: 这里我比较困惑的是，每个声道的每帧数据为什么是4字节而不是2字节了, 是不是因为这里不是pcm音频数据？
                 const NSUInteger frameSizeOf = numChannels * sizeof(float);
                 const NSUInteger bytesToCopy = MIN(numFrames * frameSizeOf, bytesLeft);
                 const NSUInteger framesToCopy = bytesToCopy / frameSizeOf;
-                
+                // 每次从audioFrame中 取第一个packet音频数据, 设置到outData中。
                 memcpy(outData, bytes, bytesToCopy);
+                
+                // Test: 将单个声道音频静音
+//                UInt16 *audioInVideoPointer = (UInt16 *)bytes;
+//
+//                Byte *combineAuidoBuffer = (Byte *)malloc(sizeof(Byte) * frameSizeOf * numFrames);
+//                UInt16 *combineAudioBufferPointer = (UInt16 *)combineAuidoBuffer;
+//                // 左右声道共32位4个字节为一帧数据，每次打包数据我都是一帧一帧的打包的。
+//                for (NSInteger i = 0; i < numFrames * 2; i++) {
+//                    // 左声道
+//                    combineAudioBufferPointer[i*2] = audioInVideoPointer[i * 2];
+//                    // 右声道
+//                    combineAudioBufferPointer[i*2 + 1] = 0;
+//                }
+//                memcpy(outData, combineAuidoBuffer, bytesToCopy);
+                
+                // Test: 让音频静音
+//                memset(outData, 0, numFrames * numChannels * sizeof(float));
+                
                 numFrames -= framesToCopy;
                 outData += framesToCopy * numChannels;
                 
@@ -899,7 +931,7 @@ _messageLabel.hidden = YES;
                     _currentAudioFrame = nil;                
                 
             } else {
-                
+                // 设置空音频数据，在音频中0表示无音量或无数据音频
                 memset(outData, 0, numFrames * numChannels * sizeof(float));
                 //LoggerStream(1, @"silence audio");
 #ifdef DEBUG
@@ -912,12 +944,14 @@ _messageLabel.hidden = YES;
     }
 }
 
+// MARK: 开启音频
 - (void) enableAudio: (BOOL) on
 {
     id<KxAudioManager> audioManager = [KxAudioManager audioManager];
             
     if (on && _decoder.validAudio) {
-                
+        
+        // MARK: audio manager里面的音频渲染，会回调这个block
         audioManager.outputBlock = ^(float *outData, UInt32 numFrames, UInt32 numChannels) {
             
             [self audioCallbackFillData: outData numFrames:numFrames numChannels:numChannels];
@@ -937,12 +971,13 @@ _messageLabel.hidden = YES;
     }
 }
 
+// MARK: 添加解码后得到的帧数据
 - (BOOL) addFrames: (NSArray *)frames
 {
     if (_decoder.validVideo) {
         
         @synchronized(_videoFrames) {
-            
+            // 分离frames中属于video的帧数据，添加到videoFrames备用
             for (KxMovieFrame *frame in frames)
                 if (frame.type == KxMovieFrameTypeVideo) {
                     [_videoFrames addObject:frame];
@@ -954,15 +989,17 @@ _messageLabel.hidden = YES;
     if (_decoder.validAudio) {
         
         @synchronized(_audioFrames) {
-            
+            // 分离frames中属于audio的帧数据，添加到_audioFrames备用
             for (KxMovieFrame *frame in frames)
                 if (frame.type == KxMovieFrameTypeAudio) {
                     [_audioFrames addObject:frame];
+                    // 只有在纯歌曲的媒体下，缓冲进度才由音频帧决定
                     if (!_decoder.validVideo)
                         _bufferedDuration += frame.duration;
                 }
         }
         
+        // 如果是纯音乐媒体，从帧数据中提取歌曲封面图
         if (!_decoder.validVideo) {
             
             for (KxMovieFrame *frame in frames)
@@ -1003,6 +1040,7 @@ _messageLabel.hidden = YES;
     return NO;
 }
 
+// MARK: 异步 循环解码
 - (void) asyncDecodeFrames
 {
     if (self.decoding)
@@ -1023,6 +1061,7 @@ _messageLabel.hidden = YES;
         }
         
         BOOL good = YES;
+        // 在循环中一直解码
         while (good) {
             
             good = NO;
@@ -1032,7 +1071,7 @@ _messageLabel.hidden = YES;
                 __strong KxMovieDecoder *decoder = weakDecoder;
                 
                 if (decoder && (decoder.validVideo || decoder.validAudio)) {
-                    
+                    // 使用KxMoviewDecoder进行解码，获得解码后的帧数据
                     NSArray *frames = [decoder decodeFrames:duration];
                     if (frames.count) {
                         
@@ -1051,8 +1090,11 @@ _messageLabel.hidden = YES;
     });
 }
 
+// MARK: 定时器
+// 这个定时器的做法是通过嵌套调用来实现的
 - (void) tick
 {
+    // 如果缓存数据够播放，去掉转子
     if (_buffered && ((_bufferedDuration > _minBufferedDuration) || _decoder.isEOF)) {
         
         _tickCorrectionTime = 0;
@@ -1065,7 +1107,7 @@ _messageLabel.hidden = YES;
         interval = [self presentFrame];
     
     if (self.playing) {
-        
+        // 剩余的音频和视频帧总和
         const NSUInteger leftFrames =
         (_decoder.validVideo ? _videoFrames.count : 0) +
         (_decoder.validAudio ? _audioFrames.count : 0);
@@ -1078,7 +1120,7 @@ _messageLabel.hidden = YES;
                 [self updateHUD];
                 return;
             }
-            
+            // 缓冲数据不够，开始显示转子
             if (_minBufferedDuration > 0 && !_buffered) {
                                 
                 _buffered = YES;
@@ -1086,6 +1128,7 @@ _messageLabel.hidden = YES;
             }
         }
         
+        // 没有数据，需要解码
         if (!leftFrames ||
             !(_bufferedDuration > _minBufferedDuration)) {
             
@@ -1136,6 +1179,7 @@ _messageLabel.hidden = YES;
     return correction;
 }
 
+// 展示buffer里的第一帧
 - (CGFloat) presentFrame
 {
     CGFloat interval = 0;

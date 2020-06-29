@@ -350,6 +350,8 @@ enum {
    	ATTRIBUTE_TEXCOORD,
 };
 
+/* Opengl是一种跨平台的编程语言。可以对图形硬件设备访问的软件库，显卡基本都支持Opengl，可能有些版本的不同。OpenglES是针对移动设备，手机游戏机等。OpenglES可以用于绘制3D图形，提高渲染效率，图像的处理。
+*/
 @implementation KxMovieGLView {
     
     KxMovieDecoder  *_decoder;
@@ -582,6 +584,7 @@ exit:
     _vertices[7] =   h;
 }
 
+// MARK: 拿着视频帧数据进行渲染
 - (void)render: (KxVideoFrame *) frame
 {        
     static const GLfloat texCoords[] = {

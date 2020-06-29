@@ -40,6 +40,7 @@
 		3B981D0D24A985DB007C7A75 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B981D0C24A985DB007C7A75 /* Security.framework */; };
 		3B981D0F24A98651007C7A75 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B981D0E24A98651007C7A75 /* OpenGLES.framework */; };
 		3B981D1124A986C8007C7A75 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B981D1024A986C7007C7A75 /* QuartzCore.framework */; };
+		3B981D1724A99710007C7A75 /* Signature.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 3B981D1624A99710007C7A75 /* Signature.mp4 */; };
 		87E7940916390F6D000A0848 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 87E7940816390F6D000A0848 /* main.m */; };
 		87E7940F16390F6D000A0848 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 87E7940E16390F6D000A0848 /* Default.png */; };
 		87E7941116390F6D000A0848 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 87E7941016390F6D000A0848 /* Default@2x.png */; };
@@ -222,6 +223,7 @@
 		3B981D0C24A985DB007C7A75 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS13.4.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
 		3B981D0E24A98651007C7A75 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS13.4.sdk/System/Library/Frameworks/OpenGLES.framework; sourceTree = DEVELOPER_DIR; };
 		3B981D1024A986C7007C7A75 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS13.4.sdk/System/Library/Frameworks/QuartzCore.framework; sourceTree = DEVELOPER_DIR; };
+		3B981D1624A99710007C7A75 /* Signature.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = Signature.mp4; sourceTree = "<group>"; };
 		4BCAE8B115D3C93B0492DCA1 /* Pods_KxMovieExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_KxMovieExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E6AB9BC191288370010CAA1 /* kxmovie-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "kxmovie-Prefix.pch"; sourceTree = "<group>"; };
 		4E6AB9BD19128FDA0010CAA1 /* KxLogger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KxLogger.h; sourceTree = "<group>"; };
@@ -539,6 +541,22 @@
 			path = lib;
 			sourceTree = "<group>";
 		};
+		3B981D1424A996A3007C7A75 /* Resource */ = {
+			isa = PBXGroup;
+			children = (
+				3B981D1524A996B5007C7A75 /* SampleMovies */,
+			);
+			path = Resource;
+			sourceTree = "<group>";
+		};
+		3B981D1524A996B5007C7A75 /* SampleMovies */ = {
+			isa = PBXGroup;
+			children = (
+				3B981D1624A99710007C7A75 /* Signature.mp4 */,
+			);
+			path = SampleMovies;
+			sourceTree = "<group>";
+		};
 		87E793EB16390F10000A0848 = {
 			isa = PBXGroup;
 			children = (
@@ -606,6 +624,7 @@
 		87E7940216390F6D000A0848 /* KxMovieExample */ = {
 			isa = PBXGroup;
 			children = (
+				3B981D1424A996A3007C7A75 /* Resource */,
 				87E7940A16390F6D000A0848 /* KxMovieExample-Prefix.pch */,
 				87E7942B1639108E000A0848 /* AppDelegate.h */,
 				87E7942C1639108E000A0848 /* AppDelegate.m */,
@@ -740,6 +759,7 @@
 				87E7941116390F6D000A0848 /* Default@2x.png in Resources */,
 				87E7941316390F6D000A0848 /* Default-568h@2x.png in Resources */,
 				87E794271639107F000A0848 /* kxmovie.bundle in Resources */,
+				3B981D1724A99710007C7A75 /* Signature.mp4 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

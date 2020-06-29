@@ -244,7 +244,10 @@ static OSStatus renderCallback (void *inRefCon, AudioUnitRenderActionFlags	*ioAc
             
     // Slap a render callback on the unit
     AURenderCallbackStruct callbackStruct;
+    
+    // 这个方法很重要，这里看样子意思是指定 音频数据的block
     callbackStruct.inputProc = renderCallback;
+    
     callbackStruct.inputProcRefCon = (__bridge void *)(self);
     
     if (checkError(AudioUnitSetProperty(_audioUnit,
@@ -301,9 +304,14 @@ static OSStatus renderCallback (void *inRefCon, AudioUnitRenderActionFlags	*ioAc
     return YES;	
 }
 
+
+/// AudioUnit 会让系统回调一个方法，让用户提供音频数据，这里就是该回调里调用的方法，目的是填充音频数据
+/// @param numFrames 音频帧数量
+/// @param ioData 音频帧数据
 - (BOOL) renderFrames: (UInt32) numFrames
                ioData: (AudioBufferList *) ioData
 {
+    // 这里会对ioData进行置零操作，以便从下面的block中获得外部的音频数据
     for (int iBuffer=0; iBuffer < ioData->mNumberBuffers; ++iBuffer) {
         memset(ioData->mBuffers[iBuffer].mData, 0, ioData->mBuffers[iBuffer].mDataByteSize);
     }

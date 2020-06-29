@@ -396,7 +396,7 @@ static int interrupt_callback(void *ctx);
 ////////////////////////////////////////////////////////////////////////////////
 
 @interface KxMovieDecoder () {
-    
+    // AVFormatContext 连接多个API的一个桥梁，
     AVFormatContext     *_formatCtx;
 	AVCodecContext      *_videoCodecCtx;
     AVCodecContext      *_audioCodecCtx;
@@ -595,6 +595,7 @@ static int interrupt_callback(void *ctx);
             if (_videoStreams.count) {
                 NSMutableArray *ma = [NSMutableArray array];
                 for (NSNumber *n in _videoStreams) {
+                    // AVStream 音视频流的结构体
                     AVStream *st = _formatCtx->streams[n.integerValue];
                     avcodec_string(buf, sizeof(buf), st->codec, 1);
                     NSString *s = [NSString stringWithCString:buf encoding:NSUTF8StringEncoding];
@@ -732,6 +733,7 @@ static int interrupt_callback(void *ctx);
     
     _path = path;
     
+    // 这个方法会出事后AVFormatContext
     kxMovieError errCode = [self openInput: path];
     
     if (errCode == kxMovieErrorNone) {
@@ -765,6 +767,7 @@ static int interrupt_callback(void *ctx);
     return YES;
 }
 
+// MARK: 这里能够创建AVFormatContext
 - (kxMovieError) openInput: (NSString *) path
 {
     AVFormatContext *formatCtx = NULL;
@@ -1352,6 +1355,7 @@ static int interrupt_callback(void *ctx);
     return _videoFrameFormat == format;
 }
 
+// MARK: 从数据流中解码数据包
 - (NSArray *) decodeFrames: (CGFloat) minDuration
 {
     if (_videoStream == -1 &&
@@ -1360,6 +1364,7 @@ static int interrupt_callback(void *ctx);
 
     NSMutableArray *result = [NSMutableArray array];
     
+    // AVPacket 流中的每块数据包
     AVPacket packet;
     
     CGFloat decodedDuration = 0;
@@ -1367,7 +1372,7 @@ static int interrupt_callback(void *ctx);
     BOOL finished = NO;
     
     while (!finished) {
-        
+        // 读取流中的每一个包，获取流中的下一个packet数据
         if (av_read_frame(_formatCtx, &packet) < 0) {
             _isEOF = YES;
             break;

@@ -29,21 +29,65 @@
         self.tabBarItem = [[UITabBarItem alloc] initWithTabBarSystemItem:UITabBarSystemItemFeatured tag: 0];
         
         _remoteMovies = @[
-
-//            @"http://eric.cast.ro/stream2.flv",
-//            @"http://liveipad.wasu.cn/cctv2_ipad/z.m3u8",
-            @"http://www.wowza.com/_h264/BigBuckBunny_175k.mov",
-            // @"http://www.wowza.com/_h264/BigBuckBunny_115k.mov",
-            @"rtsp://184.72.239.149/vod/mp4:BigBuckBunny_115k.mov",
+            @"rtmp://58.200.131.2:1935/livetv/cctv1",
+            @"rtmp://58.200.131.2:1935/livetv/cctv2",
+            @"rtmp://58.200.131.2:1935/livetv/cctv3",
+            @"rtmp://58.200.131.2:1935/livetv/cctv4",
+            @"rtmp://58.200.131.2:1935/livetv/cctv5",
+            @"rtmp://58.200.131.2:1935/livetv/cctv6",
+            @"rtmp://58.200.131.2:1935/livetv/cctv7",
+            @"rtmp://58.200.131.2:1935/livetv/cctv8",
+            @"rtmp://58.200.131.2:1935/livetv/cctv9",
+            @"rtmp://58.200.131.2:1935/livetv/cctv10",
+            @"rtmp://58.200.131.2:1935/livetv/cctv11",
+            @"rtmp://58.200.131.2:1935/livetv/cctv12",
+            @"rtmp://58.200.131.2:1935/livetv/cctv13",
+            @"rtmp://58.200.131.2:1935/livetv/cctv14",
+            @"rtmp://58.200.131.2:1935/livetv/cctv15",
+            @"rtmp://58.200.131.2:1935/livetv/ahtv",
+            @"rtmp://58.200.131.2:1935/livetv/bttv",
+            @"rtmp://58.200.131.2:1935/livetv/cqtv",
+            @"rtmp://58.200.131.2:1935/livetv/dftv",
+            @"rtmp://58.200.131.2:1935/livetv/dntv",
+            @"rtmp://58.200.131.2:1935/livetv/gdtv",
+            @"rtmp://58.200.131.2:1935/livetv/gxtv",
+            @"rtmp://58.200.131.2:1935/livetv/gstv",
+            @"rtmp://58.200.131.2:1935/livetv/gztv",
+            @"rtmp://58.200.131.2:1935/livetv/hbtv",
+            @"rtmp://58.200.131.2:1935/livetv/hunantv",
+            @"rtmp://58.200.131.2:1935/livetv/hebtv",
+            @"rtmp://58.200.131.2:1935/livetv/hntv",
+            @"rtmp://58.200.131.2:1935/livetv/hljtv",
+            @"rtmp://58.200.131.2:1935/livetv/jstv",
+            @"rtmp://58.200.131.2:1935/livetv/jxtv",
+            @"rtmp://58.200.131.2:1935/livetv/jltv",
+            @"rtmp://58.200.131.2:1935/livetv/lntv",
+            @"rtmp://58.200.131.2:1935/livetv/nmtv",
+            @"rtmp://58.200.131.2:1935/livetv/nxtv",
+            @"rtmp://58.200.131.2:1935/livetv/qhtv",
+            @"rtmp://58.200.131.2:1935/livetv/sctv",
+            @"rtmp://58.200.131.2:1935/livetv/sdtv",
+            @"rtmp://58.200.131.2:1935/livetv/sxrtv",
+            @"rtmp://58.200.131.2:1935/livetv/sxtv",
+            @"rtmp://58.200.131.2:1935/livetv/dfhd",
+            @"rtmp://58.200.131.2:1935/livetv/tjhd",
+            @"rtmp://58.200.131.2:1935/livetv/jshd",
+            @"rtmp://58.200.131.2:1935/livetv/zjhd",
+            @"rtmp://58.200.131.2:1935/livetv/chchd",
+            @"rtmp://58.200.131.2:1935/livetv/fhzw",
+            @"rtmp://58.200.131.2:1935/livetv/fhzx",
+            @"rtmp://58.200.131.2:1935/livetv/fhdy",
+            @"rtmp://58.200.131.2:1935/livetv/startv",
+            @"rtmp://58.200.131.2:1935/livetv/starsports",
+            @"rtmp://58.200.131.2:1935/livetv/channelv",
+            @"rtmp://58.200.131.2:1935/livetv/discovery",
+            @"rtmp://58.200.131.2:1935/livetv/natlgeo",
+            @"rtmp://58.200.131.2:1935/livetv/chctv",
+            @"rtmp://58.200.131.2:1935/livetv/chcatv",
+            @"rtmp://media3.scctv.net/live/scctv_800",
+            @"rtmp://202.69.69.180:443/webcast/bshdlive-pc",
             @"rtmp://58.200.131.2:1935/livetv/hunantv",
             @"http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4",
-        
-            //@"rtsp://184.72.239.149/vod/mp4://BigBuckBunny_175k.mov",
-            //@"http://santai.tv/vod/test/BigBuckBunny_175k.mov",
-        
-//            @"rtmp://aragontvlivefs.fplive.net/aragontvlive-live/stream_normal_abt",
-//            @"rtmp://ucaster.eu:1935/live/_definst_/discoverylacajatv",
-//            @"rtmp://edge01.fms.dutchview.nl/botr/bunny.flv"
         ];
         
     }
@@ -149,10 +193,10 @@
 
     // Add all the movies present in the app bundle.
     NSBundle *bundle = [NSBundle mainBundle];
-    [ma addObjectsFromArray:[bundle pathsForResourcesOfType:@"mp4" inDirectory:@"SampleMovies"]];
-    [ma addObjectsFromArray:[bundle pathsForResourcesOfType:@"mov" inDirectory:@"SampleMovies"]];
-    [ma addObjectsFromArray:[bundle pathsForResourcesOfType:@"m4v" inDirectory:@"SampleMovies"]];
-    [ma addObjectsFromArray:[bundle pathsForResourcesOfType:@"wav" inDirectory:@"SampleMovies"]];
+    [ma addObjectsFromArray:[bundle pathsForResourcesOfType:@"mp4" inDirectory:nil]];
+    [ma addObjectsFromArray:[bundle pathsForResourcesOfType:@"mov" inDirectory:nil]];
+    [ma addObjectsFromArray:[bundle pathsForResourcesOfType:@"m4v" inDirectory:nil]];
+    [ma addObjectsFromArray:[bundle pathsForResourcesOfType:@"wav" inDirectory:nil]];
 
     [ma sortedArrayUsingSelector:@selector(compare:)];
     

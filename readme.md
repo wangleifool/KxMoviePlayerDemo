@@ -5,7 +5,7 @@
 
 ### 查看Demo效果
 
-1. 编译按自己需求定制的ffmpeg，可食用https://github.com/kewlbear/FFmpeg-iOS-build-script.git进行自动化编译。
+1. 编译按自己需求定制的ffmpeg，可食用 https://github.com/kewlbear/FFmpeg-iOS-build-script.git 进行自动化编译。
 2. 将编译后的FFmpeg-iOS拖入工程，即可编译运行。如果遇到错误，请检查Header Search Path是否与自己的真实情况对应。
 
 ### 集成到自己的项目
