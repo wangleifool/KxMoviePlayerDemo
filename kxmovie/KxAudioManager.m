@@ -325,13 +325,43 @@ static OSStatus renderCallback (void *inRefCon, AudioUnitRenderActionFlags	*ioAc
         if (_numBytesPerSample == 4) // then we've already got floats
         {
             float zero = 0.0;
-            
             for (int iBuffer=0; iBuffer < ioData->mNumberBuffers; ++iBuffer) {
                 
                 int thisNumChannels = ioData->mBuffers[iBuffer].mNumberChannels;
                 
+//                int bufferOffset = iBuffer * numFrames;
+                
                 for (int iChannel = 0; iChannel < thisNumChannels; ++iChannel) {
-                    vDSP_vsadd(_outData+iChannel, _numOutputChannels, &zero, (float *)ioData->mBuffers[iBuffer].mData, thisNumChannels, numFrames);
+                    // vDSP_vsadd( const float *__A,vDSP_Stride __IA,const float *__B, float *__C, vDSP_Stride __IC, vDSP_Length __N)
+                    // 上面的公式等于
+                    // for (n = 0; n < N; ++n)
+                    //    C[n] = A[n] + B[0];
+//                    vDSP_vsadd(_outData+iChannel, _numOutputChannels, &zero, (float *)ioData->mBuffers[iBuffer].mData, thisNumChannels, numFrames);
+                    
+                    // 左声道用原声音
+                    if (iBuffer == 0) {
+                        vDSP_vsadd(_outData+iChannel, _numOutputChannels, &zero, (float *)ioData->mBuffers[iBuffer].mData, thisNumChannels, numFrames);
+                    } else {
+                        // TODO: 右声道拿来装MIDI
+                        int size = MAX_FRAME_SIZE * MAX_CHAN * sizeof(float);
+                        float *zeroData = (float *)calloc(MAX_FRAME_SIZE*MAX_CHAN, sizeof(float));
+                        memset(zeroData, 0, size);
+                        vDSP_vsadd(zeroData, _numOutputChannels, &zero, (float *)ioData->mBuffers[iBuffer].mData, thisNumChannels, numFrames);
+                        free(zeroData);
+                    }
+                    
+                    
+                    // 暂时用清晰易懂的方式查看，但这里好像精度损失了，
+                    // ibuffer == 0 左声道，ibuffer == 1 右声道
+//                    for (int n = 0; n < numFrames; ++n) {
+//                        float frameData = (_outData+iChannel)[n] + zero;
+//                        if (iBuffer == 0) {
+//                            frameData = 0;
+//                        }
+//                        ((float *)ioData->mBuffers[iBuffer].mData)[n] = frameData;
+//                    }
+                    
+                    
                 }
             }
         }
@@ -463,7 +493,7 @@ static OSStatus renderCallback (void *inRefCon, AudioUnitRenderActionFlags	*ioAc
 @end
 
 #pragma mark - callbacks
-
+// MARK: 音频输入出接口变化、系统音量变化回调
 static void sessionPropertyListener(void *                  inClientData,
                                     AudioSessionPropertyID  inID,
                                     UInt32                  inDataSize,
@@ -486,6 +516,7 @@ static void sessionPropertyListener(void *                  inClientData,
     }
 }
 
+// MARK: 音频被打断回调
 static void sessionInterruptionListener(void *inClientData, UInt32 inInterruption)
 {    
     KxAudioManagerImpl *sm = (__bridge KxAudioManagerImpl *)inClientData;
@@ -506,6 +537,7 @@ static void sessionInterruptionListener(void *inClientData, UInt32 inInterruptio
 	}
 }
 
+// MARK: 系统请求音频数据的回调
 static OSStatus renderCallback (void						*inRefCon,
                                 AudioUnitRenderActionFlags	* ioActionFlags,
                                 const AudioTimeStamp 		* inTimeStamp,
@@ -514,6 +546,7 @@ static OSStatus renderCallback (void						*inRefCon,
                                 AudioBufferList				* ioData)
 {
 	KxAudioManagerImpl *sm = (__bridge KxAudioManagerImpl *)inRefCon;
+    // 这个方法会将ioData填充好数据，供系统使用
     return [sm renderFrames:inNumberFrames ioData:ioData];
 }
 

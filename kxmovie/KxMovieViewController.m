@@ -905,7 +905,7 @@ _messageLabel.hidden = YES;
                 // 每次从audioFrame中 取第一个packet音频数据, 设置到outData中。
                 memcpy(outData, bytes, bytesToCopy);
                 
-                // Test: 将单个声道音频静音
+//                // Test: 将单个声道音频静音
 //                UInt16 *audioInVideoPointer = (UInt16 *)bytes;
 //
 //                Byte *combineAuidoBuffer = (Byte *)malloc(sizeof(Byte) * frameSizeOf * numFrames);
@@ -915,9 +915,10 @@ _messageLabel.hidden = YES;
 //                    // 左声道
 //                    combineAudioBufferPointer[i*2] = audioInVideoPointer[i * 2];
 //                    // 右声道
-//                    combineAudioBufferPointer[i*2 + 1] = 0;
+//                    combineAudioBufferPointer[i*2 + 1] = audioInVideoPointer[i * 2 + 1];
 //                }
 //                memcpy(outData, combineAuidoBuffer, bytesToCopy);
+//                free(combineAuidoBuffer);
                 
                 // Test: 让音频静音
 //                memset(outData, 0, numFrames * numChannels * sizeof(float));

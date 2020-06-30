@@ -1209,6 +1209,7 @@ static int interrupt_callback(void *ctx);
     
     void * audioData;
     
+    // 重采样？
     if (_swrContext) {
         
         const NSUInteger ratio = MAX(1, audioManager.samplingRate / _audioCodecCtx->sample_rate) *
